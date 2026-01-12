@@ -14,9 +14,6 @@ datasource db {
   provider = "postgresql"
 }
 
-
-
-
 model User {
   id        String   @id @default(cuid())
   name      String?
@@ -37,8 +34,8 @@ model User {
   banReason  String?
   banExpires DateTime?
 
-  @@map("user")
   @@unique([username])
+  @@map("user")
 }
 
 model Account {
@@ -110,4 +107,11 @@ model Jwks {
   expiresAt  DateTime?
 
   @@map("jwks")
+}
+
+model Category {
+  id        String   @default(cuid())
+  name      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

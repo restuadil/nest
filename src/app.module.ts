@@ -7,6 +7,7 @@ import { WinstonModule } from "nest-winston";
 import * as winston from "winston";
 
 import { auth } from "../auth";
+import { CategoriesModule } from "./api/categories/categories.module";
 import { CommonModule } from "./common/common.module";
 import { ConfigService } from "./config/config.service";
 import { validateEnv } from "./config/env";
@@ -61,6 +62,7 @@ import { validateEnv } from "./config/env";
       }),
     }),
     BetterAuthMdoule.forRoot({ auth }),
+    CategoriesModule,
   ],
   controllers: [],
   providers: [],
