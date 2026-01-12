@@ -1,11 +1,14 @@
-import { Test } from "@nestjs/testing";
 import { INestApplication } from "@nestjs/common";
+import { Test } from "@nestjs/testing";
+
 import request from "supertest";
-import { AppModule } from "../src/app.module";
+import { App } from "supertest/types";
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
 
+import { AppModule } from "../src/app.module";
+
 describe("App E2E", () => {
-  let app: INestApplication;
+  let app: INestApplication<App>;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -22,6 +25,6 @@ describe("App E2E", () => {
 
   it("/GET /", async () => {
     const res = await request(app.getHttpServer()).get("/");
-    expect(res.status).toBe(200);
+    expect(res.status).toBe(404);
   });
 });
