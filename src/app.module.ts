@@ -2,13 +2,14 @@ import { Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
 import { EventEmitterModule } from "@nestjs/event-emitter";
 
+import { AuthModule as BetterAuthMdoule } from "@thallesp/nestjs-better-auth";
 import { WinstonModule } from "nest-winston";
 import * as winston from "winston";
 
+import { auth } from "../auth";
 import { CommonModule } from "./common/common.module";
 import { ConfigService } from "./config/config.service";
 import { validateEnv } from "./config/env";
-
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -59,6 +60,7 @@ import { validateEnv } from "./config/env";
         ],
       }),
     }),
+    BetterAuthMdoule.forRoot({ auth }),
   ],
   controllers: [],
   providers: [],

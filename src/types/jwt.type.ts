@@ -1,4 +1,4 @@
-import { UserRole } from "src/generated/prisma/enums";
+import { UserRole } from "./web.type";
 
 export interface UserPayload {
   id: string;
