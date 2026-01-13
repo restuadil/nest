@@ -34,8 +34,3 @@ export interface AuthRequest {
   cookies: Record<string, string>;
   user: UserPayload;
 }
-
-export enum UserRole {
-  USER = "user",
-  ADMIN = "admin",
-}

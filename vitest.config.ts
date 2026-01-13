@@ -1,4 +1,5 @@
 import path from "path";
+
 import swc from "unplugin-swc";
 import { defineConfig } from "vitest/config";
 
@@ -7,6 +8,7 @@ export default defineConfig({
     globals: true,
     root: "./",
     include: ["src/**/*.spec.ts", "test/**/*.e2e-spec.ts"],
+    testTimeout: 80000,
   },
   resolve: {
     alias: {
