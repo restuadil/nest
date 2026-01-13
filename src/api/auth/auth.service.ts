@@ -1,6 +1,12 @@
 import { randomBytes } from "crypto";
 
-import { ConflictException, Inject, Injectable } from "@nestjs/common";
+import {
+  BadRequestException,
+  ConflictException,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 
 import * as bcrypt from "bcrypt";
@@ -14,6 +20,7 @@ import { UserStatus } from "src/generated/prisma/enums";
 import { UserPayload } from "src/types/jwt.type";
 
 import { UsersService } from "../users/users.service";
+import { ActivationDto } from "./dto/activation.dto";
 import { LoginDto, LoginResponseDto } from "./dto/login.dto";
 import {
   RegisterDto,
@@ -123,5 +130,28 @@ export class AuthService {
     );
 
     return { accessToken, refreshToken };
+  }
+
+  async activate(activationDto: ActivationDto): Promise<RegisterResponseDto> {
+    this.logger.info(`AuthService.activate`);
+    const { activation_code } = activationDto;
+    const user = await this.usersService.findByKey(
+      "activation_code",
+      activation_code,
+    );
+
+    if (!user) throw new NotFoundException("User not found");
+    if (user.status === UserStatus.ACTIVE)
+      throw new BadRequestException("User is already active");
+    if (user.activationExpiresAt && user.activationExpiresAt < new Date())
+      throw new ConflictException("Activation code has expired");
+
+    const updateUser = await this.usersService.update(user.id, {
+      status: UserStatus.ACTIVE,
+      activation_code: null,
+      activationExpiresAt: null,
+    });
+
+    return toRegisterResponse(updateUser);
   }
 }

@@ -1,10 +1,12 @@
 import {
   Body,
   Controller,
+  Get,
   HttpCode,
   HttpStatus,
   Inject,
   Post,
+  Query,
   Res,
 } from "@nestjs/common";
 
@@ -17,6 +19,7 @@ import { ZodPipe } from "src/common/pipes/zod.pipe";
 import { ControllerResponse } from "src/types/web.type";
 
 import { AuthService } from "./auth.service";
+import { activationSchema, type ActivationDto } from "./dto/activation.dto";
 import { type LoginDto, loginSchema } from "./dto/login.dto";
 import {
   type RegisterDto,
@@ -61,5 +64,15 @@ export class AuthController {
       message: "User logged in successfully",
       data: { accessToken },
     };
+  }
+
+  @Get("activate")
+  @HttpCode(HttpStatus.OK)
+  @Public()
+  async activate(
+    @Query(new ZodPipe(activationSchema)) activationDto: ActivationDto,
+  ): Promise<ControllerResponse<RegisterResponseDto>> {
+    const result = await this.authService.activate(activationDto);
+    return { message: "User activated successfully", data: result };
   }
 }

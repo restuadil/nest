@@ -5,7 +5,7 @@ import { Logger } from "winston";
 
 import { RedisService } from "src/common/redis/redis.service";
 import { User } from "src/generated/prisma/client";
-import { UserCreateInput } from "src/generated/prisma/models";
+import { UserCreateInput, UserUpdateInput } from "src/generated/prisma/models";
 
 import { UsersRepository } from "./users.repository";
 
@@ -31,5 +31,9 @@ export class UsersService {
   ): Promise<User | null> {
     this.logger.info(`UsersService.findByIdentifier`);
     return await this.usersRepository.findByIdentifier(username, email);
+  }
+  async update(id: string, data: UserUpdateInput): Promise<User> {
+    this.logger.info(`UsersService.update`);
+    return await this.usersRepository.update(id, data);
   }
 }

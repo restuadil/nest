@@ -40,4 +40,17 @@ export class TestService {
       },
     });
   }
+  async createInactiveUserWithCode(code: string, expiresAt?: Date) {
+    return await this.prismaService.user.create({
+      data: {
+        email: "test@activation.com",
+        password: bcrypt.hashSync("123456", 10),
+        username: "activation",
+        status: "INACTIVE",
+        activation_code: code,
+        activationExpiresAt: expiresAt ?? new Date(Date.now() + 1000 * 60 * 10),
+        roles: ["USER"],
+      },
+    });
+  }
 }

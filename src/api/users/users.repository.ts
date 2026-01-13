@@ -2,7 +2,7 @@ import { Injectable } from "@nestjs/common";
 
 import { PrismaService } from "src/common/prisma/prisma.service";
 import { User } from "src/generated/prisma/client";
-import { UserCreateInput } from "src/generated/prisma/models";
+import { UserCreateInput, UserUpdateInput } from "src/generated/prisma/models";
 
 @Injectable()
 export class UsersRepository {
@@ -21,5 +21,8 @@ export class UsersRepository {
     return await this.prismaService.user.findFirst({
       where: { OR: [{ username }, { email }] },
     });
+  }
+  async update(id: string, data: UserUpdateInput): Promise<User> {
+    return await this.prismaService.user.update({ where: { id }, data });
   }
 }
