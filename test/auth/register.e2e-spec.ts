@@ -7,8 +7,9 @@ import { Test, TestingModule } from "@nestjs/testing";
 
 import request from "supertest";
 import { App } from "supertest/types";
-import { describe, it, beforeEach } from "vitest";
+import { describe, it, beforeAll, afterAll, beforeEach } from "vitest";
 
+import { RegisterResponseDto } from "src/api/auth/dto/register.dto";
 import { AppModule } from "src/app.module";
 
 import { expectErrorResponse, expectSuccessResponse } from "../response.helper";
@@ -18,14 +19,15 @@ import { TestService } from "../test.service";
 describe("REGISTER E2E", () => {
   let app: INestApplication<App>;
   let testService: TestService;
+  const basePath = "/api/auth/register";
 
   const payload = {
-    email: "admin@gmail.com",
+    email: "admin1@gmail.com",
     password: "123456",
-    username: "admin",
+    username: "admin1",
   };
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule, TestModule],
     }).compile();
@@ -35,46 +37,47 @@ describe("REGISTER E2E", () => {
     testService = app.get(TestService);
   });
 
-  describe("POST /api/auth/register", () => {
-    const basePath = "/api/auth/register";
+  afterAll(async () => {
+    await app.close();
+  });
 
-    beforeEach(async () => {
-      await testService.deleteAll();
+  beforeEach(async () => {
+    await testService.deleteAll();
+  });
+
+  it("should success register", async () => {
+    const res = await request(app.getHttpServer()).post(basePath).send(payload);
+
+    expectSuccessResponse<RegisterResponseDto>(res, HttpStatus.CREATED, {
+      id: expect.any(String) as string,
+      email: payload.email,
+      username: payload.username,
+      roles: ["USER"],
+      status: "INACTIVE",
+    });
+  });
+
+  it("should fail register if user already exists", async () => {
+    await testService.createUser();
+    const res = await request(app.getHttpServer()).post(basePath).send({
+      email: "admin@gmail.com",
+      password: "123456",
+      username: "admin",
     });
 
-    it("should success register", async () => {
-      const res = await request(app.getHttpServer())
-        .post(basePath)
-        .send(payload);
-      expectSuccessResponse(
-        res,
-        HttpStatus.CREATED,
-        {
-          email: payload.email,
-          username: payload.username,
-          roles: ["USER"],
-          status: "INACTIVE",
-        },
-        "User registered successfully",
-      );
-    });
-    it("should fail register if user already exists", async () => {
-      await testService.createUser();
-      const res = await request(app.getHttpServer())
-        .post(basePath)
-        .send(payload);
-      expectErrorResponse(
-        res,
-        HttpStatus.CONFLICT,
-        ConflictException.name,
-        "User already exists",
-      );
-    });
-    it("should reject if validataion error", async () => {
-      const res = await request(app.getHttpServer())
-        .post(basePath)
-        .send({ email: "admin", password: "123456" });
-      expectErrorResponse(res, HttpStatus.BAD_REQUEST);
-    });
+    expectErrorResponse(
+      res,
+      HttpStatus.CONFLICT,
+      ConflictException.name,
+      "User already exists",
+    );
+  });
+
+  it("should reject if validation error", async () => {
+    const res = await request(app.getHttpServer())
+      .post(basePath)
+      .send({ email: "admin", password: "123456" });
+
+    expectErrorResponse(res, HttpStatus.BAD_REQUEST);
   });
 });

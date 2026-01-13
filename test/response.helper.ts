@@ -2,18 +2,18 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { expect } from "vitest";
 
-export function expectSuccessResponse(
-  res: any,
+import { TestingResponse } from "src/types/web.type";
+export function expectSuccessResponse<T>(
+  res: TestingResponse<T>,
   statusCode: number,
-  dataMatcher?: any,
-  message?: string,
+  data: Partial<T> | T,
 ) {
   expect(res.status).toBe(statusCode);
   expect(res.body).toMatchObject({
     statusCode,
     status: true,
-    data: dataMatcher ?? expect.anything(),
-    message: message ?? expect.any(String),
+    data,
+    message: expect.any(String),
     error: null,
   });
 

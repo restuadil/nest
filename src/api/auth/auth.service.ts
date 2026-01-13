@@ -8,10 +8,13 @@ import { WINSTON_MODULE_PROVIDER } from "nest-winston";
 import { Logger } from "winston";
 
 import { MailService } from "src/common/mail/mail.service";
+import { RedisService } from "src/common/redis/redis.service";
 import { ConfigService } from "src/config/config.service";
+import { UserStatus } from "src/generated/prisma/enums";
 import { UserPayload } from "src/types/jwt.type";
 
 import { UsersService } from "../users/users.service";
+import { LoginDto, LoginResponseDto } from "./dto/login.dto";
 import {
   RegisterDto,
   RegisterResponseDto,
@@ -24,6 +27,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
     private readonly mailService: MailService,
+    private readonly redisService: RedisService,
     @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
   ) {}
   private hash(str: string): string {
@@ -86,5 +90,38 @@ export class AuthService {
     });
 
     return toRegisterResponse(user);
+  }
+
+  async login(loginDto: LoginDto): Promise<LoginResponseDto> {
+    this.logger.info(`AuthService.login`);
+    const { identifier, password } = loginDto;
+
+    const user = await this.usersService.findByIdentifier(
+      identifier,
+      identifier,
+    );
+
+    if (!user) throw new ConflictException("Invalid credentials");
+    if (!this.compare(password, user.password))
+      throw new ConflictException("Invalid credentials");
+    if (user && user.status !== UserStatus.ACTIVE)
+      throw new ConflictException("Please activate your account to login");
+
+    const payload: UserPayload = {
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      roles: user.roles,
+    };
+
+    const { accessToken, refreshToken } = this.generateTokens(payload);
+
+    await this.redisService.set(
+      `refreshToken:${user.id}`,
+      this.hash(refreshToken),
+      this.configService.get<number>("REDIS_TTL"),
+    );
+
+    return { accessToken, refreshToken };
   }
 }

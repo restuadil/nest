@@ -34,3 +34,16 @@ export interface AuthRequest {
   cookies: Record<string, string>;
   user: UserPayload;
 }
+
+export interface TestingResponse<T> {
+  status: number;
+  body: {
+    statusCode: number;
+    status: boolean;
+    data: T;
+    error: string | null;
+    message: string | null;
+    timestamp: string;
+    path: string;
+  };
+}
