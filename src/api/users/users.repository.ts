@@ -11,7 +11,10 @@ export class UsersRepository {
   async create(data: UserCreateInput): Promise<User> {
     return await this.prismaService.user.create({ data });
   }
-  async findByKey(key: keyof User, value: string): Promise<User | null> {
+  async findByKey(
+    key: keyof User,
+    value: string | Date | number | boolean,
+  ): Promise<User | null> {
     return await this.prismaService.user.findFirst({ where: { [key]: value } });
   }
   async findByIdentifier(

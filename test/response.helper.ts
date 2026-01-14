@@ -24,7 +24,7 @@ export function expectSuccessResponse<T>(
 export function expectErrorResponse(
   res: any,
   statusCode: number,
-  errorName?: string,
+  error: string,
   message?: string,
 ) {
   expect(res.status).toBe(statusCode);
@@ -32,7 +32,7 @@ export function expectErrorResponse(
     statusCode,
     status: false,
     data: null,
-    error: errorName ?? expect.any(String),
+    error: error,
     message: message ?? expect.any(String),
   });
 

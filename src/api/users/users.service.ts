@@ -21,7 +21,10 @@ export class UsersService {
     this.logger.info(`UsersService.create`);
     return await this.usersRepository.create(data);
   }
-  async findByKey(key: keyof User, value: string): Promise<User | null> {
+  async findByKey(
+    key: keyof User,
+    value: string | Date | number | boolean,
+  ): Promise<User | null> {
     this.logger.info(`UsersService.findByKey`);
     return await this.usersRepository.findByKey(key, value);
   }

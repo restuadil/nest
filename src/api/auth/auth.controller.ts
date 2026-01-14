@@ -14,8 +14,11 @@ import { type Response } from "express";
 import { WINSTON_MODULE_PROVIDER } from "nest-winston";
 import { Logger } from "winston";
 
+import { Me } from "src/common/decorators/me.decorator";
 import { Public } from "src/common/decorators/public.decorator";
 import { ZodPipe } from "src/common/pipes/zod.pipe";
+import { User } from "src/generated/prisma/client";
+import { type UserPayload } from "src/types/jwt.type";
 import { ControllerResponse } from "src/types/web.type";
 
 import { AuthService } from "./auth.service";
@@ -51,6 +54,7 @@ export class AuthController {
     @Body(new ZodPipe(loginSchema)) loginDto: LoginDto,
     @Res({ passthrough: true }) res: Response,
   ): Promise<ControllerResponse<{ accessToken: string }>> {
+    this.logger.info(`AuthController.login`);
     const { accessToken, refreshToken } =
       await this.authService.login(loginDto);
 
@@ -72,7 +76,21 @@ export class AuthController {
   async activate(
     @Query(new ZodPipe(activationSchema)) activationDto: ActivationDto,
   ): Promise<ControllerResponse<RegisterResponseDto>> {
+    this.logger.info(`AuthController.activate`);
     const result = await this.authService.activate(activationDto);
     return { message: "User activated successfully", data: result };
+  }
+
+  @Get("me")
+  @HttpCode(HttpStatus.OK)
+  async me(
+    @Me() me: UserPayload,
+  ): Promise<ControllerResponse<Omit<User, "password">>> {
+    this.logger.info(`AuthController.me`);
+    const result = await this.authService.me(me);
+    return {
+      message: "User profile fetched successfully",
+      data: result,
+    };
   }
 }

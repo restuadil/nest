@@ -16,6 +16,7 @@ import { Logger } from "winston";
 import { MailService } from "src/common/mail/mail.service";
 import { RedisService } from "src/common/redis/redis.service";
 import { ConfigService } from "src/config/config.service";
+import { User } from "src/generated/prisma/client";
 import { UserStatus } from "src/generated/prisma/enums";
 import { UserPayload } from "src/types/jwt.type";
 
@@ -153,5 +154,15 @@ export class AuthService {
     });
 
     return toRegisterResponse(updateUser);
+  }
+
+  async me(me: UserPayload): Promise<Omit<User, "password">> {
+    this.logger.info(`AuthService.me`);
+    this.logger.info(JSON.stringify(me));
+    const userWithPassword = await this.usersService.findByKey("id", me.id);
+    if (!userWithPassword) throw new NotFoundException("User not found");
+    const { password: _, ...user } = userWithPassword;
+    this.logger.info(JSON.stringify(user));
+    return user;
   }
 }
