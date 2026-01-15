@@ -165,4 +165,35 @@ export class AuthService {
     this.logger.info(JSON.stringify(user));
     return user;
   }
+
+  async refreshToken(oldRefreshToken: string): Promise<LoginResponseDto> {
+    this.logger.info(`AuthService.refreshToken`);
+
+    const { email, id, roles, username }: UserPayload = this.jwtService.verify(
+      oldRefreshToken,
+      {
+        secret: this.configService.get<string>("JWT_REFRESH_SECRET"),
+      },
+    );
+    const storedRefreshToken = await this.redisService.get<string>(
+      `refreshToken:${id}`,
+    );
+    if (!storedRefreshToken)
+      throw new BadRequestException("Invalid refresh token");
+
+    if (!this.compare(oldRefreshToken, storedRefreshToken))
+      throw new BadRequestException("Invalid refresh tokenA");
+
+    const payload: UserPayload = { email, id, roles, username };
+
+    const { accessToken, refreshToken } = this.generateTokens(payload);
+
+    await this.redisService.set(
+      `refreshToken:${id}`,
+      this.hash(refreshToken),
+      this.configService.get<number>("REDIS_TTL"),
+    );
+
+    return { accessToken, refreshToken };
+  }
 }
