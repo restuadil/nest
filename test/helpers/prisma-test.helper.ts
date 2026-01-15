@@ -62,3 +62,14 @@ export async function resetDb() {
     `SET session_replication_role = 'origin';`,
   );
 }
+export async function createAdminUser(email: string, password: string) {
+  return prismaTest.user.create({
+    data: {
+      email,
+      password: bcrypt.hashSync(password, 10),
+      username: email.split("@")[0],
+      status: "ACTIVE",
+      roles: ["ADMIN"],
+    },
+  });
+}

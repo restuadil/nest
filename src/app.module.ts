@@ -6,6 +6,7 @@ import { WinstonModule } from "nest-winston";
 import * as winston from "winston";
 
 import { AuthModule } from "./api/auth/auth.module";
+import { CategoriesModule } from "./api/categories/categories.module";
 import { CommonModule } from "./common/common.module";
 import { ConfigService } from "./config/config.service";
 import { validateEnv } from "./config/env";
@@ -60,6 +61,7 @@ import { validateEnv } from "./config/env";
     }),
     CommonModule,
     AuthModule,
+    CategoriesModule,
   ],
   controllers: [],
 })
