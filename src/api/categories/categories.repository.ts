@@ -20,7 +20,6 @@ export class CategoriesRepository {
   async create(data: CategoryCreateInput): Promise<Category> {
     return await this.prismaService.category.create({ data });
   }
-
   async findAll(options: Query): Promise<Category[]> {
     return await this.prismaService.category.findMany({
       skip: (options.page - 1) * options.limit,

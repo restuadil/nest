@@ -5,6 +5,7 @@ import {
   HttpCode,
   HttpStatus,
   Inject,
+  Param,
   Post,
   Query,
 } from "@nestjs/common";
@@ -14,6 +15,7 @@ import { Logger } from "winston";
 
 import { Public } from "src/common/decorators/public.decorator";
 import { Roles } from "src/common/decorators/roles.decorator";
+import { type IdDto, idSchema } from "src/common/helpers/cuid.dto";
 import { ZodPipe } from "src/common/pipes/zod.pipe";
 import { Category } from "src/generated/prisma/client";
 import { UserRole } from "src/generated/prisma/enums";
@@ -52,5 +54,16 @@ export class CategoriesController {
     const { data, meta } =
       await this.categoriesService.findAll(queryCategoryDto);
     return { message: "Categories fetched successfully", data, meta };
+  }
+
+  @Get(":id")
+  @HttpCode(HttpStatus.OK)
+  @Public()
+  async findById(
+    @Param("id", new ZodPipe(idSchema)) id: IdDto,
+  ): Promise<ControllerResponse<Category>> {
+    this.logger.info(`CategoriesController.findById`);
+    const result = await this.categoriesService.findById(id);
+    return { message: "Category fetched successfully", data: result };
   }
 }
