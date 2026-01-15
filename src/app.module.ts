@@ -2,12 +2,10 @@ import { Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
 import { EventEmitterModule } from "@nestjs/event-emitter";
 
-import { AuthModule as BetterAuthMdoule } from "@thallesp/nestjs-better-auth";
 import { WinstonModule } from "nest-winston";
 import * as winston from "winston";
 
-import { auth } from "../auth";
-import { CategoriesModule } from "./api/categories/categories.module";
+import { AuthModule } from "./api/auth/auth.module";
 import { CommonModule } from "./common/common.module";
 import { ConfigService } from "./config/config.service";
 import { validateEnv } from "./config/env";
@@ -18,7 +16,6 @@ import { validateEnv } from "./config/env";
       envFilePath: [`.env.${process.env.NODE_ENV}`, ".env"],
       validate: validateEnv,
     }),
-    CommonModule,
     EventEmitterModule.forRoot(),
     WinstonModule.forRootAsync({
       inject: [ConfigService],
@@ -61,10 +58,9 @@ import { validateEnv } from "./config/env";
         ],
       }),
     }),
-    BetterAuthMdoule.forRoot({ auth }),
-    CategoriesModule,
+    CommonModule,
+    AuthModule,
   ],
   controllers: [],
-  providers: [],
 })
 export class AppModule {}
