@@ -1,4 +1,8 @@
-import { HttpStatus, INestApplication } from "@nestjs/common";
+import {
+  HttpStatus,
+  INestApplication,
+  NotFoundException,
+} from "@nestjs/common";
 
 import request from "supertest";
 import { App } from "supertest/types";
@@ -45,5 +49,14 @@ describe("FindById Category E2E", () => {
     );
     expect(res.status).toBe(HttpStatus.BAD_REQUEST);
     expectErrorResponse(res, HttpStatus.BAD_REQUEST, "Validation Error");
+  });
+
+  it("should 404 if category not found", async () => {
+    await createCategory("category 1");
+    const res = await request(app.getHttpServer()).get(
+      "/api/categories/cmkfo0soe0000dcval0o70g95",
+    );
+    expect(res.status).toBe(HttpStatus.NOT_FOUND);
+    expectErrorResponse(res, HttpStatus.NOT_FOUND, NotFoundException.name);
   });
 });
