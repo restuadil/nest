@@ -1,15 +1,18 @@
 import {
   Body,
   Controller,
+  Get,
   HttpCode,
   HttpStatus,
   Inject,
   Post,
+  Query,
 } from "@nestjs/common";
 
 import { WINSTON_MODULE_PROVIDER } from "nest-winston";
 import { Logger } from "winston";
 
+import { Public } from "src/common/decorators/public.decorator";
 import { Roles } from "src/common/decorators/roles.decorator";
 import { ZodPipe } from "src/common/pipes/zod.pipe";
 import { Category } from "src/generated/prisma/client";
@@ -18,6 +21,7 @@ import { ControllerResponse } from "src/types/web.type";
 
 import { CategoriesService } from "./categories.service";
 import { type CreateCategoryDto, createCategorySchema } from "./dto/create.dto";
+import { type QueryCategoryDto, queryCategorySchema } from "./dto/query.dto";
 
 @Controller("api/categories")
 export class CategoriesController {
@@ -36,5 +40,17 @@ export class CategoriesController {
     this.logger.info(`CategoriesController.create`);
     const result = await this.categoriesService.create(createCategoryDto);
     return { message: "Category created successfully", data: result };
+  }
+
+  @Get()
+  @HttpCode(HttpStatus.OK)
+  @Public()
+  async findAll(
+    @Query(new ZodPipe(queryCategorySchema)) queryCategoryDto: QueryCategoryDto,
+  ): Promise<ControllerResponse<Category[]>> {
+    this.logger.info(`CategoriesController.findAll`);
+    const { data, meta } =
+      await this.categoriesService.findAll(queryCategoryDto);
+    return { message: "Categories fetched successfully", data, meta };
   }
 }

@@ -18,7 +18,7 @@ import {
   expectSuccessResponse,
 } from "../../response.helper";
 
-describe("Register E2E", () => {
+describe("Create Catgory E2E", () => {
   let app: INestApplication<App>;
 
   beforeAll(async () => {
