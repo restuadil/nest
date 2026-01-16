@@ -49,4 +49,7 @@ export class CategoriesRepository {
   async update(id: string, data: CategoryUpdateInput): Promise<Category> {
     return await this.prismaService.category.update({ where: { id }, data });
   }
+  async delete(id: string): Promise<Category> {
+    return await this.prismaService.category.delete({ where: { id } });
+  }
 }

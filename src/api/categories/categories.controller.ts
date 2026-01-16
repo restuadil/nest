@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
@@ -80,5 +81,19 @@ export class CategoriesController {
     this.logger.info(`CategoriesController.update`);
     const result = await this.categoriesService.update(id, updateCategoryDto);
     return { message: "Category updated successfully", data: result };
+  }
+
+  @Delete(":id")
+  @HttpCode(HttpStatus.OK)
+  @Roles(UserRole.ADMIN)
+  async delete(
+    @Param("id", new ZodPipe(idSchema)) id: IdDto,
+  ): Promise<ControllerResponse<void>> {
+    this.logger.info(`CategoriesController.delete`);
+    await this.categoriesService.delete(id);
+    return {
+      message: "Category deleted successfully",
+      data: null,
+    };
   }
 }

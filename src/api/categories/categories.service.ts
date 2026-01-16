@@ -90,4 +90,11 @@ export class CategoriesService {
 
     return updated;
   }
+
+  async delete(id: string): Promise<void> {
+    this.logger.info(`CategoriesService.delete`);
+    await this.findById(id);
+    await this.categoriesRepository.delete(id);
+    await this.redisService.deleteByPattern("categories*");
+  }
 }
