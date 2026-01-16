@@ -45,6 +45,6 @@ describe("FindAll Category E2E", () => {
       "/api/categories?foo=bar",
     );
     expect(res.status).toBe(HttpStatus.BAD_REQUEST);
-    expectErrorResponse(res, HttpStatus.BAD_REQUEST, "Validation Error");
+    expectErrorResponse(res, HttpStatus.BAD_REQUEST, "VALIDATION ERROR");
   });
 });

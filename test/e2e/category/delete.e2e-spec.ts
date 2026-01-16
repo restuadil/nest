@@ -75,7 +75,7 @@ describe("Delete Catgory E2E", () => {
       .delete("/api/categories/invalid-id")
       .set("Authorization", `Bearer ${token}`);
     expect(res.status).toBe(HttpStatus.BAD_REQUEST);
-    expectErrorResponse(res, HttpStatus.BAD_REQUEST, "Validation Error");
+    expectErrorResponse(res, HttpStatus.BAD_REQUEST, "VALIDATION ERROR");
   });
 
   it("should return 404 category not found", async () => {

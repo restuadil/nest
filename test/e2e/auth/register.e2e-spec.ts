@@ -45,7 +45,7 @@ describe("Register E2E", () => {
       username: "test",
     });
   });
-  it("should return validation error", async () => {
+  it("should return VALIDATION ERROR", async () => {
     const res = await request(app.getHttpServer())
       .post("/api/auth/register")
       .send({
@@ -54,7 +54,7 @@ describe("Register E2E", () => {
         username: "",
       });
 
-    expectErrorResponse(res, HttpStatus.BAD_REQUEST, "Validation Error");
+    expectErrorResponse(res, HttpStatus.BAD_REQUEST, "VALIDATION ERROR");
   });
   it("should return conflict error", async () => {
     await createActiveUser("test@mail.com", "123456");

@@ -48,7 +48,7 @@ describe("FindById Category E2E", () => {
       "/api/categories/invalid-id",
     );
     expect(res.status).toBe(HttpStatus.BAD_REQUEST);
-    expectErrorResponse(res, HttpStatus.BAD_REQUEST, "Validation Error");
+    expectErrorResponse(res, HttpStatus.BAD_REQUEST, "VALIDATION ERROR");
   });
 
   it("should 404 if category not found", async () => {

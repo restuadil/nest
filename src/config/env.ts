@@ -35,7 +35,7 @@ export const validateEnv = (config: Record<string, unknown>) => {
   const parsed = envSchema.safeParse(config);
 
   if (parsed.success === false) {
-    throw new Error(`Config validation error:\n${parsed.error.message}`);
+    throw new Error(`Config VALIDATION ERROR:\n${parsed.error.message}`);
   }
 
   return parsed.data;

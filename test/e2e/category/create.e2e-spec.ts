@@ -43,7 +43,7 @@ describe("Create Catgory E2E", () => {
       name: "category 1",
     });
   });
-  it("should return validation error", async () => {
+  it("should return VALIDATION ERROR", async () => {
     const token = await loginAdmin(app);
     const res = await request(app.getHttpServer())
       .post("/api/categories")
@@ -51,7 +51,7 @@ describe("Create Catgory E2E", () => {
       .send({
         name: "1",
       });
-    expectErrorResponse(res, HttpStatus.BAD_REQUEST, "Validation Error");
+    expectErrorResponse(res, HttpStatus.BAD_REQUEST, "VALIDATION ERROR");
   });
   it("should return 401 unauthorized", async () => {
     const res = await request(app.getHttpServer())

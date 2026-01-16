@@ -47,7 +47,7 @@ export class GlobalFilter implements ExceptionFilter {
         statusCode: 400,
         status: false,
         data: null,
-        error: "Validation Error",
+        error: "VALIDATION ERROR",
         message: Array.isArray(exception.issues)
           ? exception.issues.map((err) => err.message).join(", ")
           : exception.message,
