@@ -97,4 +97,12 @@ export class CategoriesService {
     await this.categoriesRepository.delete(id);
     await this.redisService.deleteByPattern("categories*");
   }
+
+  async findByIds(ids: string[]): Promise<Category[]> {
+    this.logger.info(`CategoriesService.findByIds`);
+    const categories = await this.categoriesRepository.findByIds(ids);
+    if (categories.length !== ids.length)
+      throw new NotFoundException("Some categories not found");
+    return categories;
+  }
 }

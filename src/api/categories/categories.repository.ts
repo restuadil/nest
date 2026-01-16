@@ -52,4 +52,9 @@ export class CategoriesRepository {
   async delete(id: string): Promise<Category> {
     return await this.prismaService.category.delete({ where: { id } });
   }
+  async findByIds(ids: string[]): Promise<Category[]> {
+    return await this.prismaService.category.findMany({
+      where: { id: { in: ids } },
+    });
+  }
 }
