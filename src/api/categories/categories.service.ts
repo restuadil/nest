@@ -16,6 +16,7 @@ import { Meta, PaginationResponse } from "src/types/web.type";
 import { CategoriesRepository } from "./categories.repository";
 import { CreateCategoryDto } from "./dto/create.dto";
 import { QueryCategoryDto } from "./dto/query.dto";
+import { UpdateCategoryDto } from "./dto/update.dto";
 
 @Injectable()
 export class CategoriesService {
@@ -63,5 +64,30 @@ export class CategoriesService {
     const category = await this.categoriesRepository.findByKey("id", id);
     if (!category) throw new NotFoundException("Category not found");
     return category;
+  }
+
+  async update(
+    id: string,
+    updateCategoryDto: UpdateCategoryDto,
+  ): Promise<Category> {
+    this.logger.info(`CategoriesService.update`);
+    const { name } = updateCategoryDto;
+
+    const category = await this.findById(id);
+    const existing = await this.categoriesRepository.findByKey(
+      "name",
+      name ?? category.name,
+    );
+    if (existing && existing.id !== id)
+      throw new ConflictException("Category already exists");
+
+    const updated = await this.categoriesRepository.update(
+      id,
+      updateCategoryDto,
+    );
+
+    await this.redisService.deleteByPattern("categories*");
+
+    return updated;
   }
 }

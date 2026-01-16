@@ -3,7 +3,10 @@ import { Injectable } from "@nestjs/common";
 import { Query } from "src/common/helpers/base-query";
 import { PrismaService } from "src/common/prisma/prisma.service";
 import { Category } from "src/generated/prisma/client";
-import { CategoryCreateInput } from "src/generated/prisma/models";
+import {
+  CategoryCreateInput,
+  CategoryUpdateInput,
+} from "src/generated/prisma/models";
 
 @Injectable()
 export class CategoriesRepository {
@@ -42,5 +45,8 @@ export class CategoriesRepository {
           }
         : undefined,
     });
+  }
+  async update(id: string, data: CategoryUpdateInput): Promise<Category> {
+    return await this.prismaService.category.update({ where: { id }, data });
   }
 }

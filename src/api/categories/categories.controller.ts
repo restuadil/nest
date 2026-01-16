@@ -7,6 +7,7 @@ import {
   Inject,
   Param,
   Post,
+  Put,
   Query,
 } from "@nestjs/common";
 
@@ -24,6 +25,7 @@ import { ControllerResponse } from "src/types/web.type";
 import { CategoriesService } from "./categories.service";
 import { type CreateCategoryDto, createCategorySchema } from "./dto/create.dto";
 import { type QueryCategoryDto, queryCategorySchema } from "./dto/query.dto";
+import { updateCategorySchema, type UpdateCategoryDto } from "./dto/update.dto";
 
 @Controller("api/categories")
 export class CategoriesController {
@@ -65,5 +67,18 @@ export class CategoriesController {
     this.logger.info(`CategoriesController.findById`);
     const result = await this.categoriesService.findById(id);
     return { message: "Category fetched successfully", data: result };
+  }
+
+  @Put(":id")
+  @HttpCode(HttpStatus.OK)
+  @Roles(UserRole.ADMIN)
+  async update(
+    @Param("id", new ZodPipe(idSchema)) id: IdDto,
+    @Body(new ZodPipe(updateCategorySchema))
+    updateCategoryDto: UpdateCategoryDto,
+  ): Promise<ControllerResponse<Category>> {
+    this.logger.info(`CategoriesController.update`);
+    const result = await this.categoriesService.update(id, updateCategoryDto);
+    return { message: "Category updated successfully", data: result };
   }
 }
