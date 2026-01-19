@@ -5,6 +5,7 @@ import {
   HttpCode,
   HttpStatus,
   Inject,
+  Param,
   Post,
   Query,
 } from "@nestjs/common";
@@ -14,6 +15,7 @@ import { Logger } from "winston";
 
 import { Public } from "src/common/decorators/public.decorator";
 import { Roles } from "src/common/decorators/roles.decorator";
+import { idSchema, type IdDto } from "src/common/helpers/cuid.dto";
 import { ZodPipe } from "src/common/pipes/zod.pipe";
 import { Product } from "src/generated/prisma/client";
 import { UserRole } from "src/generated/prisma/enums";
@@ -51,5 +53,16 @@ export class ProductsController {
     this.logger.info(`ProductsController.findAll`);
     const { data, meta } = await this.productsService.findAll(queryProductDto);
     return { message: "Products found successfully", data, meta };
+  }
+
+  @Get(":id")
+  @HttpCode(HttpStatus.OK)
+  @Public()
+  async findById(
+    @Param("id", new ZodPipe(idSchema)) id: IdDto,
+  ): Promise<ControllerResponse<Product>> {
+    this.logger.info(`ProductsController.findById`);
+    const product = await this.productsService.findById(id);
+    return { message: "Product found successfully", data: product };
   }
 }

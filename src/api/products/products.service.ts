@@ -1,8 +1,14 @@
-import { ConflictException, Inject, Injectable } from "@nestjs/common";
+import {
+  ConflictException,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from "@nestjs/common";
 
 import { WINSTON_MODULE_PROVIDER } from "nest-winston";
 import { Logger } from "winston";
 
+import { IdDto } from "src/common/helpers/cuid.dto";
 import { generateMeta } from "src/common/helpers/generate-meta";
 import { RedisService } from "src/common/redis/redis.service";
 import { Product } from "src/generated/prisma/client";
@@ -67,5 +73,11 @@ export class ProductsService {
 
     await this.redisService.set(cacheKey, { data, meta });
     return { data, meta };
+  }
+  async findById(id: IdDto): Promise<Product> {
+    this.logger.info(`ProductsService.findById`);
+    const product = await this.productsRepository.findByKey("id", id);
+    if (!product) throw new NotFoundException("Product not found");
+    return product;
   }
 }
