@@ -77,3 +77,18 @@ export async function createAdminUser(email: string, password: string) {
 export async function createCategory(name: string) {
   return prismaTest.category.create({ data: { name } });
 }
+export async function createProduct(name: string, categoryIds: string[]) {
+  return prismaTest.product.create({
+    data: {
+      name: name,
+      description: "Product 1 description",
+      images: [
+        "https://upload.wikimedia.org/wikipedia/en/1/13/One_Piece_Anime_Logo_International.png",
+      ],
+      price: 100,
+      ProductCategory: {
+        create: categoryIds.map((categoryId) => ({ categoryId })),
+      },
+    },
+  });
+}
