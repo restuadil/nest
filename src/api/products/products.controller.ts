@@ -7,6 +7,7 @@ import {
   Inject,
   Param,
   Post,
+  Put,
   Query,
 } from "@nestjs/common";
 
@@ -23,6 +24,7 @@ import { ControllerResponse } from "src/types/web.type";
 
 import { type CreateProductDto, createProductSchema } from "./dto/create.dto";
 import { queryProductSchema, type QueryProductDto } from "./dto/query.dto";
+import { updateProductSchema, type UpdateProductDto } from "./dto/update.dto";
 import { ProductsService } from "./products.service";
 
 @Controller("api/products")
@@ -64,5 +66,17 @@ export class ProductsController {
     this.logger.info(`ProductsController.findById`);
     const product = await this.productsService.findById(id);
     return { message: "Product found successfully", data: product };
+  }
+
+  @Put(":id")
+  @HttpCode(HttpStatus.OK)
+  @Roles(UserRole.ADMIN)
+  async update(
+    @Param("id", new ZodPipe(idSchema)) id: IdDto,
+    @Body(new ZodPipe(updateProductSchema)) updateProductDto: UpdateProductDto,
+  ): Promise<ControllerResponse<Product>> {
+    this.logger.info(`ProductsController.update`);
+    const result = await this.productsService.update(id, updateProductDto);
+    return { message: "Product updated successfully", data: result };
   }
 }

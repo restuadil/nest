@@ -2,7 +2,10 @@ import { Injectable } from "@nestjs/common";
 
 import { PrismaService } from "src/common/prisma/prisma.service";
 import { Product, ProductStatus } from "src/generated/prisma/client";
-import { ProductCreateInput } from "src/generated/prisma/models";
+import {
+  ProductCreateInput,
+  ProductUpdateInput,
+} from "src/generated/prisma/models";
 
 import { QueryProductDto } from "./dto/query.dto";
 
@@ -99,5 +102,8 @@ export class ProductsRepository {
           : {}),
       },
     });
+  }
+  async update(id: string, data: ProductUpdateInput): Promise<Product> {
+    return await this.prismaService.product.update({ where: { id }, data });
   }
 }

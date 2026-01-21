@@ -18,6 +18,7 @@ import { ProductsRepository } from "./products.repository";
 import { CategoriesService } from "../categories/categories.service";
 import { CreateProductDto } from "./dto/create.dto";
 import { QueryProductDto } from "./dto/query.dto";
+import { UpdateProductDto } from "./dto/update.dto";
 
 @Injectable()
 export class ProductsService {
@@ -79,5 +80,41 @@ export class ProductsService {
     const product = await this.productsRepository.findByKey("id", id);
     if (!product) throw new NotFoundException("Product not found");
     return product;
+  }
+
+  async update(
+    id: IdDto,
+    updateProductDto: UpdateProductDto,
+  ): Promise<Product> {
+    this.logger.info(`ProductsService.update`);
+    const { categoryIds, images, name, price, status, description } =
+      updateProductDto;
+
+    await this.categoriesService.findByIds(categoryIds ?? []);
+
+    const product = await this.findById(id);
+    const existing = await this.productsRepository.findByKey(
+      "name",
+      name ?? product.name,
+    );
+    if (existing && existing.id !== id)
+      throw new ConflictException("Product already exists");
+
+    const updated = await this.productsRepository.update(id, {
+      name: name ?? product.name,
+      description: description ?? product.description,
+      images:
+        images?.map((image) => image) ?? product.images.map((image) => image),
+      price: price ?? product.price,
+      status: status ?? product.status,
+      ProductCategory: {
+        deleteMany: categoryIds?.map((_categoryId) => ({})),
+        create: categoryIds?.map((categoryId) => ({ categoryId })),
+      },
+    });
+
+    await this.redisService.deleteByPattern("products*");
+
+    return updated;
   }
 }
