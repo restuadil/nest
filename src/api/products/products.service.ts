@@ -65,12 +65,12 @@ export class ProductsService {
       await this.redisService.get<PaginationResponse<Product>>(cacheKey);
     if (cached) return cached;
 
-    const [data, otal] = await Promise.all([
+    const [data, total] = await Promise.all([
       this.productsRepository.findAll(queryProductDto),
       this.productsRepository.count(queryProductDto),
     ]);
 
-    const meta: Meta = generateMeta(page, limit, otal);
+    const meta: Meta = generateMeta(page, limit, total);
 
     await this.redisService.set(cacheKey, { data, meta });
     return { data, meta };
@@ -81,7 +81,6 @@ export class ProductsService {
     if (!product) throw new NotFoundException("Product not found");
     return product;
   }
-
   async update(
     id: IdDto,
     updateProductDto: UpdateProductDto,
@@ -116,5 +115,11 @@ export class ProductsService {
     await this.redisService.deleteByPattern("products*");
 
     return updated;
+  }
+  async delete(id: IdDto): Promise<void> {
+    this.logger.info(`ProductsService.delete`);
+    await this.findById(id);
+    await this.productsRepository.delete(id);
+    await this.redisService.deleteByPattern("products*");
   }
 }

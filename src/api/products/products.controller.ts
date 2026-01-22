@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
@@ -78,5 +79,16 @@ export class ProductsController {
     this.logger.info(`ProductsController.update`);
     const result = await this.productsService.update(id, updateProductDto);
     return { message: "Product updated successfully", data: result };
+  }
+
+  @Delete(":id")
+  @HttpCode(HttpStatus.OK)
+  @Roles(UserRole.ADMIN)
+  async delete(
+    @Param("id", new ZodPipe(idSchema)) id: IdDto,
+  ): Promise<ControllerResponse<void>> {
+    this.logger.info(`ProductsController.delete`);
+    await this.productsService.delete(id);
+    return { message: "Product deleted successfully", data: null };
   }
 }

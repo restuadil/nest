@@ -106,4 +106,7 @@ export class ProductsRepository {
   async update(id: string, data: ProductUpdateInput): Promise<Product> {
     return await this.prismaService.product.update({ where: { id }, data });
   }
+  async delete(id: string): Promise<Product> {
+    return await this.prismaService.product.delete({ where: { id } });
+  }
 }
