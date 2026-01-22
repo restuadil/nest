@@ -26,6 +26,13 @@ enum UserStatus {
   SUSSPENDED
 }
 
+enum ProductStatus {
+  ACTIVE
+  INACTIVE
+  ARCHIVED
+  OUT_OF_STOCK
+}
+
 model User {
   id                  String     @id @default(cuid())
   email               String     @unique
@@ -42,16 +49,66 @@ model User {
   // timestamps
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  reviews   Review[]
 
   //mapping
   @@map("users")
 }
 
 model Category {
-  id        String   @id @default(cuid())
-  name      String
+  id                String            @id @default(cuid())
+  name              String
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  productCategories ProductCategory[]
+
+  @@map("categories")
+}
+
+model ProductCategory {
+  id         String   @id @default(cuid())
+  productId  String   @default(cuid())
+  categoryId String   @default(cuid())
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  product  Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@unique([productId, categoryId])
+  @@map("product_categories")
+}
+
+model Product {
+  id              String            @id @default(cuid())
+  name            String            @unique
+  description     String?
+  price           Float
+  status          ProductStatus     @default(ACTIVE)
+  images          String[]
+  ProductCategory ProductCategory[]
+  reviews         Review[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@map("categories")
+  @@map("products")
+}
+
+model Review {
+  id         String   @id @default(cuid())
+  productId  String   @default(cuid())
+  userId     String   @default(cuid())
+  rating     Int
+  title      String?
+  comment    String?
+  isVerified Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([productId, userId])
+  @@map("reviews")
 }
