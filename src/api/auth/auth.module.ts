@@ -12,15 +12,21 @@ import { UsersModule } from "../users/users.module";
   imports: [
     JwtModule.registerAsync({
       inject: [ConfigService],
+
       useFactory: (configService: ConfigService) => ({
         global: true,
+
         secret: configService.get<string>("JWT_SECRET"),
       }),
     }),
+
     UsersModule,
   ],
+
   controllers: [AuthController],
+
   providers: [AuthService, JwtStrategy],
+
   exports: [AuthService],
 })
 export class AuthModule {}

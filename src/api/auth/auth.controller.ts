@@ -36,8 +36,10 @@ import {
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
+
     @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
   ) {}
+
   @Public()
   @HttpCode(HttpStatus.CREATED)
   @Post("register")
@@ -45,7 +47,9 @@ export class AuthController {
     @Body(new ZodPipe(registerSchema)) registerDto: RegisterDto,
   ): Promise<ControllerResponse<RegisterResponseDto>> {
     this.logger.info(`AuthController.register`);
+
     const reult = await this.authService.register(registerDto);
+
     return { message: "User registered successfully", data: reult };
   }
 
@@ -54,20 +58,25 @@ export class AuthController {
   @Public()
   async login(
     @Body(new ZodPipe(loginSchema)) loginDto: LoginDto,
+
     @Res({ passthrough: true }) res: Response,
   ): Promise<ControllerResponse<{ accessToken: string }>> {
     this.logger.info(`AuthController.login`);
+
     const { accessToken, refreshToken } =
       await this.authService.login(loginDto);
 
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
+
       secure: false,
+
       sameSite: "lax",
     });
 
     return {
       message: "User logged in successfully",
+
       data: { accessToken },
     };
   }
@@ -79,7 +88,9 @@ export class AuthController {
     @Query(new ZodPipe(activationSchema)) activationDto: ActivationDto,
   ): Promise<ControllerResponse<RegisterResponseDto>> {
     this.logger.info(`AuthController.activate`);
+
     const result = await this.authService.activate(activationDto);
+
     return { message: "User activated successfully", data: result };
   }
 
@@ -89,9 +100,12 @@ export class AuthController {
     @Me() me: UserPayload,
   ): Promise<ControllerResponse<Omit<User, "password">>> {
     this.logger.info(`AuthController.me`);
+
     const result = await this.authService.me(me);
+
     return {
       message: "User profile fetched successfully",
+
       data: result,
     };
   }
@@ -101,6 +115,7 @@ export class AuthController {
   @Public()
   async refreshToken(
     @Cookie("refreshToken", new ZodPipe(cookieSchema)) cookieDto: CookieDto,
+
     @Res({ passthrough: true }) res: Response,
   ): Promise<ControllerResponse<{ accessToken: string }>> {
     this.logger.info(`AuthController - refreshToken`);
@@ -110,12 +125,15 @@ export class AuthController {
 
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
+
       secure: false,
+
       sameSite: "lax",
     });
 
     return {
       message: "Token refreshed successfully",
+
       data: { accessToken },
     };
   }
