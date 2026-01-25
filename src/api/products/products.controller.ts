@@ -25,6 +25,10 @@ import { ControllerResponse } from "src/types/web.type";
 
 import { type CreateProductDto, createProductSchema } from "./dto/create.dto";
 import { queryProductSchema, type QueryProductDto } from "./dto/query.dto";
+import {
+  FindAllProductsResponse,
+  FindByIdProductResponse,
+} from "./dto/response.dto";
 import { updateProductSchema, type UpdateProductDto } from "./dto/update.dto";
 import { ProductsService } from "./products.service";
 
@@ -52,7 +56,7 @@ export class ProductsController {
   @Public()
   async findAll(
     @Query(new ZodPipe(queryProductSchema)) queryProductDto: QueryProductDto,
-  ): Promise<ControllerResponse<Product[]>> {
+  ): Promise<ControllerResponse<FindAllProductsResponse[]>> {
     this.logger.info(`ProductsController.findAll`);
     const { data, meta } = await this.productsService.findAll(queryProductDto);
     return { message: "Products found successfully", data, meta };
@@ -63,7 +67,7 @@ export class ProductsController {
   @Public()
   async findById(
     @Param("id", new ZodPipe(idSchema)) id: IdDto,
-  ): Promise<ControllerResponse<Product>> {
+  ): Promise<ControllerResponse<FindByIdProductResponse>> {
     this.logger.info(`ProductsController.findById`);
     const product = await this.productsService.findById(id);
     return { message: "Product found successfully", data: product };

@@ -18,6 +18,12 @@ import { ProductsRepository } from "./products.repository";
 import { CategoriesService } from "../categories/categories.service";
 import { CreateProductDto } from "./dto/create.dto";
 import { QueryProductDto } from "./dto/query.dto";
+import {
+  FindAllProductsResponse,
+  FindByIdProductResponse,
+  toFindAllProductResponse,
+  toFindByIdProductResponse,
+} from "./dto/response.dto";
 import { UpdateProductDto } from "./dto/update.dto";
 
 @Injectable()
@@ -55,14 +61,16 @@ export class ProductsService {
   }
   async findAll(
     queryProductDto: QueryProductDto,
-  ): Promise<PaginationResponse<Product>> {
+  ): Promise<PaginationResponse<FindAllProductsResponse>> {
     this.logger.info(`ProductsService.findAll`);
 
     const { limit, page } = queryProductDto;
     this.logger.info(`queryProductDto ${JSON.stringify(queryProductDto)}`);
     const cacheKey = `products:${JSON.stringify(queryProductDto)}`;
     const cached =
-      await this.redisService.get<PaginationResponse<Product>>(cacheKey);
+      await this.redisService.get<PaginationResponse<FindAllProductsResponse>>(
+        cacheKey,
+      );
     if (cached) return cached;
 
     const [data, total] = await Promise.all([
@@ -73,13 +81,13 @@ export class ProductsService {
     const meta: Meta = generateMeta(page, limit, total);
 
     await this.redisService.set(cacheKey, { data, meta });
-    return { data, meta };
+    return { data: data.map(toFindAllProductResponse), meta };
   }
-  async findById(id: IdDto): Promise<Product> {
+  async findById(id: IdDto): Promise<FindByIdProductResponse> {
     this.logger.info(`ProductsService.findById`);
-    const product = await this.productsRepository.findByKey("id", id);
+    const product = await this.productsRepository.findById(id);
     if (!product) throw new NotFoundException("Product not found");
-    return product;
+    return toFindByIdProductResponse(product);
   }
   async update(
     id: IdDto,
@@ -91,7 +99,8 @@ export class ProductsService {
 
     await this.categoriesService.findByIds(categoryIds ?? []);
 
-    const product = await this.findById(id);
+    const product = await this.productsRepository.findByKey("id", id);
+    if (!product) throw new NotFoundException("Product not found");
     const existing = await this.productsRepository.findByKey(
       "name",
       name ?? product.name,

@@ -8,6 +8,7 @@ import {
 } from "src/generated/prisma/models";
 
 import { QueryProductDto } from "./dto/query.dto";
+import { FindAllProduct, FindByIdProduct } from "./dto/response.dto";
 
 @Injectable()
 export class ProductsRepository {
@@ -24,7 +25,7 @@ export class ProductsRepository {
   async create(data: ProductCreateInput): Promise<Product> {
     return await this.prismaService.product.create({ data });
   }
-  async findAll(options: QueryProductDto): Promise<Product[]> {
+  async findAll(options: QueryProductDto): Promise<FindAllProduct[]> {
     const {
       limit,
       order,
@@ -46,9 +47,18 @@ export class ProductsRepository {
       include: {
         ProductCategory: {
           select: {
-            categoryId: true,
+            category: {
+              select: {
+                id: true,
+              },
+            },
           },
         },
+      },
+      omit: {
+        description: true,
+        createdAt: true,
+        updatedAt: true,
       },
       where: {
         status: (status as unknown as ProductStatus) ?? undefined,
@@ -108,5 +118,22 @@ export class ProductsRepository {
   }
   async delete(id: string): Promise<Product> {
     return await this.prismaService.product.delete({ where: { id } });
+  }
+  async findById(id: string): Promise<FindByIdProduct | null> {
+    return await this.prismaService.product.findUnique({
+      where: { id },
+      include: {
+        ProductCategory: {
+          include: {
+            category: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+          },
+        },
+      },
+    });
   }
 }

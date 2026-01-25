@@ -26,9 +26,6 @@ const prisma = new PrismaClient({
 async function main() {
   console.log("🚀 Start Seeding...");
 
-  // ------------------------------------------
-  // HAPUS DATA TERLEBIH DAHULU
-  // ------------------------------------------
   console.log("🧨 Deleting Data...");
 
   await prisma.review.deleteMany();
@@ -39,9 +36,6 @@ async function main() {
 
   console.log("🗑️ Done delete!");
 
-  // ------------------------------------------
-  // USERS
-  // ------------------------------------------
   const userStatusKeys = Object.keys(UserStatus) as (keyof typeof UserStatus)[];
 
   const usersData: Prisma.UserCreateManyInput[] = Array.from(
@@ -79,9 +73,6 @@ async function main() {
   });
   console.log("👥 Users seeded: 100");
 
-  // ------------------------------------------
-  // CATEGORIES
-  // ------------------------------------------
   const categoriesData: Prisma.CategoryCreateManyInput[] = Array.from(
     { length: 20 },
     () => ({
@@ -95,16 +86,11 @@ async function main() {
 
   const categories = await prisma.category.findMany();
 
-  // ------------------------------------------
-  // PRODUCTS + PRODUCTCATEGORY
-  // ------------------------------------------
   const productStatusKeys = Object.keys(
     ProductStatus,
   ) as (keyof typeof ProductStatus)[];
 
   for (let i = 1; i <= 1000; i++) {
-    const category = faker.helpers.arrayElement(categories);
-
     const product = await prisma.product.create({
       data: {
         name: `Product ${i} - ${faker.commerce.productName()}`,
@@ -120,12 +106,20 @@ async function main() {
       },
     });
 
-    await prisma.productCategory.create({
-      data: {
-        productId: product.id,
-        categoryId: category.id,
-      },
-    });
+    const categoryCount = faker.number.int({ min: 1, max: 5 });
+    const randomCategories = faker.helpers.arrayElements(
+      categories,
+      categoryCount,
+    );
+
+    for (const cat of randomCategories) {
+      await prisma.productCategory.create({
+        data: {
+          productId: product.id,
+          categoryId: cat.id,
+        },
+      });
+    }
 
     if (i % 100 === 0) console.log(`📦 Products seeded: ${i}`);
   }
